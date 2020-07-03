@@ -1,7 +1,9 @@
 language: node_js
 node_js:
-  - '4'
-  - '6'
-cache:
-  directories:
-    - node_modules
+  - 'lts/*'
+  - 10
+  - 12
+  - node
+script: npm run build
+before_install: make prep-ci
+after_success: npm run cov

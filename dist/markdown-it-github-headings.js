@@ -1,6 +1,11 @@
+/*! markdown-it-github-headings 2.0.0-1 https://github.com//GerHobbelt/markdown-it-github-headings @license ISC */
+
+'use strict';
+
 module.exports = plugin;
 
 let GithubSlugger = require('github-slugger');
+
 let innertext = require('innertext');
 
 let defaultOptions = {
@@ -15,54 +20,48 @@ let defaultOptions = {
 
 function plugin(md, _opts) {
   let options = Object.assign({}, defaultOptions, _opts);
-
   if (!options.prefixHeadingIds) options.prefix = '';
-
   let slugger = new GithubSlugger();
   let Token;
-
   md.core.ruler.push('headingLinks', function (state) {
     if (options.resetSlugger) {
       slugger.reset();
-    }
-
-    // save the Token constructor because we'll be building a few instances at render
+    } // save the Token constructor because we'll be building a few instances at render
     // time; that's sort of outside the intended markdown-it parsing sequence, but
     // since we have tight control over what we're creating (a link), we're safe
+
+
     if (!Token) {
       Token = state.Token;
     }
   });
 
   md.renderer.rules.heading_open = function (tokens, idx, opts, env, self) {
-    let children = tokens[idx + 1].children;
-    // make sure heading is not empty
+    let children = tokens[idx + 1].children; // make sure heading is not empty
+
     if (children && children.length) {
       // Generate an ID based on the heading's innerHTML; first, render without
       // converting gemoji strings to unicode emoji characters
       let unemojiWithToken = unemoji.bind(null, Token);
       let rendered = md.renderer.renderInline(children.map(unemojiWithToken), opts, env);
-      let postfix = slugger.slug(
-        innertext(rendered)
-          .replace(/[<>]/g, '') // In case the heading contains `<stuff>`
-          .toLowerCase() // because `slug` doesn't lowercase
-      );
+      let postfix = slugger.slug(innertext(rendered).replace(/[<>]/g, '') // In case the heading contains `<stuff>`
+      .toLowerCase() // because `slug` doesn't lowercase
+      ); // add 3 new token objects link_open, text, link_close
 
-      // add 3 new token objects link_open, text, link_close
       let linkOpen = new Token('link_open', 'a', 1);
       let text = new Token('html_inline', '', 0);
+
       if (options.enableHeadingLinkIcons) {
         text.content = options.linkIcon;
       }
-      let linkClose = new Token('link_close', 'a', -1);
 
-      // add some link attributes
+      let linkClose = new Token('link_close', 'a', -1); // add some link attributes
+
       linkOpen.attrSet('id', options.prefix + postfix);
       linkOpen.attrSet('class', options.className);
       linkOpen.attrSet('href', '#' + postfix);
-      linkOpen.attrSet('aria-hidden', 'true');
+      linkOpen.attrSet('aria-hidden', 'true'); // add new token objects as children of heading
 
-      // add new token objects as children of heading
       children.unshift(linkClose);
       children.unshift(text);
       children.unshift(linkOpen);
@@ -74,7 +73,11 @@ function plugin(md, _opts) {
 
 function unemoji(TokenConstructor, token) {
   if (token.type === 'emoji') {
-    return Object.assign(new TokenConstructor(), token, { content: token.markup });
+    return Object.assign(new TokenConstructor(), token, {
+      content: token.markup
+    });
   }
+
   return token;
 }
+//# sourceMappingURL=markdown-it-github-headings.js.map
