@@ -1,4 +1,4 @@
-/*! markdown-it-github-headings 2.0.0-1 https://github.com//GerHobbelt/markdown-it-github-headings @license ISC */
+/*! markdown-it-github-headings 2.0.0-2 https://github.com//GerHobbelt/markdown-it-github-headings @license ISC */
 
 module.exports = plugin;
 
